@@ -1,16 +1,19 @@
-import torch, torchvision, statistics
+import torch, torchvision, statistics, random
 import torch.nn as nn
 import torchvision.transforms as transforms
 from src.show_img import show_examples
 
-use_subset = True  # Set this to True for debugging purposes.
+use_subset = False  # Set this to True for debugging purposes.
+shuffle_labeling = True
 if use_subset: print("Using subset...")
+if shuffle_labeling: print("Shuffle labeling...")
 
+"""Creating datasets:"""
 transform = transforms.ToTensor()
-
 train_dataset = torchvision.datasets.CIFAR10(root='../data', train=True, download=True, transform=transform)
 val_dataset = torchvision.datasets.CIFAR10(root='../data', train=False, download=True, transform=transform)
 classes = train_dataset.classes
+if shuffle_labeling: random.shuffle(train_dataset.targets)
 
 if use_subset:
     train_dataset = torch.utils.data.Subset(train_dataset, torch.arange(0, 100))
