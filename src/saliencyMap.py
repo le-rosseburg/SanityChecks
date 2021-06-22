@@ -4,8 +4,8 @@ from captum.attr import IntegratedGradients
 from captum.attr import visualization as viz
 
 
-def tensor2numpy(img):
-    return np.transpose(img.cpu().detach().numpy(), (1, 2, 0))
+def tensor2img(tensor):
+    return np.transpose(tensor.cpu().detach().numpy(), (1, 2, 0))
 
 def main(net, val_dl, index):
     net.eval()
@@ -18,9 +18,9 @@ def main(net, val_dl, index):
     """Plot saliency map:"""
     ig = IntegratedGradients(net)
     attr_ig = ig.attribute(images[index].unsqueeze(0), target=labels[index])
-    attr_ig = tensor2numpy(attr_ig.squeeze())
+    attr_ig = tensor2img(attr_ig.squeeze())
 
-    original_img = tensor2numpy(images[index])
+    original_img = tensor2img(images[index])
     methods = ["original_image", "blended_heat_map", "heat_map"]
     signs = ["","all","all"]
     titles = ["Original Image", "Integrated Gradients - Blended Heat Map", "Integrated Gradients - Heat Map"]
