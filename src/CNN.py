@@ -1,10 +1,11 @@
 import torch, torchvision, statistics, random
 import torch.nn as nn
 import torchvision.transforms as transforms
-from src.show_img import show_examples
+import src.saliencyMap
+
 
 use_subset = False  # Set this to True for debugging purposes.
-shuffle_labeling = True
+shuffle_labeling = False
 if use_subset: print("Using subset...")
 if shuffle_labeling: print("Shuffle labeling...")
 
@@ -20,9 +21,6 @@ if use_subset:
     val_dataset = torch.utils.data.Subset(val_dataset, torch.arange(0, 100))
 
 print(f'classes: {classes}\nnumber of instances:\n\ttrain: {len(train_dataset)}\n\tval: {len(val_dataset)}')
-
-"""Visualizing a few examples:"""
-show_examples(4, train_dataset, classes)
 
 """Creating dataloaders:"""
 batch_size = 32
@@ -97,3 +95,7 @@ with torch.no_grad():
 
 print(f'Validation loss: {val_loss / len(val_dl)}')
 print(f'Accuracy on the validation set: {100 * correct / total}%')
+
+
+"""Plotting saliency maps:"""
+src.saliencyMap.main(net, val_dl, classes)
