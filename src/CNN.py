@@ -98,4 +98,4 @@ print(f'Accuracy on the validation set: {100 * correct / total}%')
 
 
 """Plotting saliency maps:"""
-src.saliencyMap.main(net, val_dl, classes)
+src.saliencyMap.main(net, val_dl, 3)
