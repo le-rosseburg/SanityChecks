@@ -1,7 +1,7 @@
 import torch, torchvision, statistics, random
 import torch.nn as nn
 import torchvision.transforms as transforms
-import src.saliencyMap
+import src.saliencyMaps
 
 
 use_subset = False  # Set this to True for debugging purposes.
@@ -98,4 +98,10 @@ print(f'Accuracy on the validation set: {100 * correct / total}%')
 
 
 """Plotting saliency maps:"""
-src.saliencyMap.main(net, val_dl, 3)
+net.eval()
+imgTensor, label = src.saliencyMaps.getData(val_dl, index=3)
+
+src.saliencyMaps.grads(net, imgTensor, label)
+src.saliencyMaps.integratedGrads(net, imgTensor, label)
+src.saliencyMaps.integratedGradsSmoothGrad(net, imgTensor, label)
+src.saliencyMaps.deepLift(net, imgTensor, label)
