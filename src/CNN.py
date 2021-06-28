@@ -101,7 +101,6 @@ print(f'Accuracy on the validation set: {100 * correct / total}%')
 net.eval()
 imgTensor, label = src.saliencyMaps.getData(val_dl, index=3)
 
-src.saliencyMaps.grads(net, imgTensor, label)
 src.saliencyMaps.integratedGrads(net, imgTensor, label)
-src.saliencyMaps.integratedGradsSmoothGrad(net, imgTensor, label)
 src.saliencyMaps.deepLift(net, imgTensor, label)
+src.saliencyMaps.occlusionMap(net, imgTensor, label)

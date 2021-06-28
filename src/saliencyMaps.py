@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from captum.attr import Saliency, IntegratedGradients, NoiseTunnel, DeepLift
+from captum.attr import IntegratedGradients, DeepLift, Occlusion
 from captum.attr import visualization as viz
 
 
@@ -24,17 +24,6 @@ def getData(val_dl, index):
 def tensor2img(tensor):
     return np.transpose(tensor.cpu().detach().numpy(), (1, 2, 0))
 
-# plots gradients saliency map of given image
-def grads(net, imgTensor, label):
-    saliency = Saliency(net)
-    grads = saliency.attribute(imgTensor.unsqueeze(0), target=label)
-    grads = tensor2img(grads.squeeze())
-
-    signs = ["","absolute_value","absolute_value"]
-    titles = ["Original Image", "Gradients - Blended Heat Map", "Gradients - Heat Map"]
-    viz.visualize_image_attr_multiple(grads, tensor2img(imgTensor), methods=methods, signs=signs, titles=titles,
-                                      fig_size=(13,5), show_colorbar=True)
-
 # plots integrated gradients saliency map of given image
 def integratedGrads(net, imgTensor, label):
     ig = IntegratedGradients(net)
@@ -46,25 +35,6 @@ def integratedGrads(net, imgTensor, label):
     viz.visualize_image_attr_multiple(attr_ig, tensor2img(imgTensor), methods=methods, signs=signs, titles=titles,
                                       fig_size=(13,5), show_colorbar=True)
 
-# plots integrated gradients with smooth gradient saliency map of given image
-# not working on cuda, because of out of memory error
-def integratedGradsSmoothGrad(net, imgTensor, label, disableCuda=True):
-    if disableCuda:
-        net.cpu()
-        imgTensor = imgTensor.cpu()
-
-    ig = IntegratedGradients(net)
-    nt = NoiseTunnel(ig)
-    attr_ig_nt = nt.attribute(imgTensor.unsqueeze(0), target=label, nt_type='smoothgrad_sq', nt_samples=100, stdevs=0.2)
-    attr_ig_nt = tensor2img(attr_ig_nt.squeeze())
-
-    signs = ["", "absolute_value", "absolute_value"]
-    titles = ["Original Image", "Integrated Gradients wSG - Blended Heat Map", "Integrated Gradients wSG - Heat Map"]
-    viz.visualize_image_attr_multiple(attr_ig_nt, tensor2img(imgTensor), methods=methods, signs=signs, titles=titles,
-                                      fig_size=(13, 5), show_colorbar=True)
-
-    if torch.cuda.is_available() and disableCuda: net.cuda()
-
 # plots deep lift saliency map of given image
 def deepLift(net, imgTensor, label):
     dl = DeepLift(net)
@@ -75,3 +45,15 @@ def deepLift(net, imgTensor, label):
     titles = ["Original Image", "DeepLift - Blended Heat Map", "DeepLift - Heat Map"]
     viz.visualize_image_attr_multiple(attr_dl, tensor2img(imgTensor), methods=methods, signs=signs, titles=titles,
                                       fig_size=(13,5), show_colorbar=True)
+
+# plots occlusion saliency map of given image
+def occlusionMap(net, imgTensor, label):
+    occlusion = Occlusion(net)
+
+    attr_occ = occlusion.attribute(imgTensor.unsqueeze(0), target=label, sliding_window_shapes=(3, 1, 1))
+    attr_occ = tensor2img(attr_occ.squeeze())
+
+    signs = ["", "positive", "positive"]
+    titles = ["Original Image", "Occlusion - Blended Heat Map", "Occlusion - Heat Map"]
+    viz.visualize_image_attr_multiple(attr_occ, tensor2img(imgTensor), methods=methods, signs=signs, titles=titles,
+                                      fig_size=(13, 5), show_colorbar=True)
