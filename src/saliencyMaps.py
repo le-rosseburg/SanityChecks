@@ -28,7 +28,7 @@ def tensor2img(tensor):
 def integratedGrads(net, imgTensor, label):
     ig = IntegratedGradients(net)
     attr_ig = ig.attribute(imgTensor.unsqueeze(0), target=label)
-    attr_ig = tensor2img(attr_ig.squeeze())
+    attr_ig = tensor2img(attr_ig.squeeze(0))
 
     signs = ["","all","all"]
     titles = ["Original Image", "Integrated Gradients - Blended Heat Map", "Integrated Gradients - Heat Map"]
@@ -39,7 +39,7 @@ def integratedGrads(net, imgTensor, label):
 def deepLift(net, imgTensor, label):
     dl = DeepLift(net)
     attr_dl = dl.attribute(imgTensor.unsqueeze(0), target=label)
-    attr_dl = tensor2img(attr_dl.squeeze())
+    attr_dl = tensor2img(attr_dl.squeeze(0))
 
     signs = ["","all","all"]
     titles = ["Original Image", "DeepLift - Blended Heat Map", "DeepLift - Heat Map"]
@@ -49,9 +49,8 @@ def deepLift(net, imgTensor, label):
 # plots occlusion saliency map of given image
 def occlusionMap(net, imgTensor, label):
     occlusion = Occlusion(net)
-
-    attr_occ = occlusion.attribute(imgTensor.unsqueeze(0), target=label, sliding_window_shapes=(3, 1, 1))
-    attr_occ = tensor2img(attr_occ.squeeze())
+    attr_occ = occlusion.attribute(imgTensor.unsqueeze(0), target=label, sliding_window_shapes=(imgTensor.shape[0], 1, 1))
+    attr_occ = tensor2img(attr_occ.squeeze(0))
 
     signs = ["", "positive", "positive"]
     titles = ["Original Image", "Occlusion - Blended Heat Map", "Occlusion - Heat Map"]

@@ -4,17 +4,24 @@ import torchvision.transforms as transforms
 import src.saliencyMaps
 
 
-use_subset = False  # Set this to True for debugging purposes.
+use_MNIST = False # Using CIFAR10 iff set to false
+use_subset = False # Set this to True for debugging purposes.
 shuffle_labeling = False
-if use_subset: print("Using subset...")
-if shuffle_labeling: print("Shuffle labeling...")
+print(f"Using {'only a subset' if use_subset else 'entire dataset'} of {'MNIST' if use_MNIST else 'CIFAR10'}"
+      f" {'with' if shuffle_labeling else 'without'} shuffled labeling!\n")
+
 
 """Creating datasets:"""
 transform = transforms.ToTensor()
-train_dataset = torchvision.datasets.CIFAR10(root='../data', train=True, download=True, transform=transform)
-val_dataset = torchvision.datasets.CIFAR10(root='../data', train=False, download=True, transform=transform)
-classes = train_dataset.classes
+if use_MNIST:
+    train_dataset = torchvision.datasets.MNIST(root='../data', train=True, download=True, transform=transform)
+    val_dataset = torchvision.datasets.MNIST(root='../data', train=False, download=True, transform=transform)
+else:
+    train_dataset = torchvision.datasets.CIFAR10(root='../data', train=True, download=True, transform=transform)
+    val_dataset = torchvision.datasets.CIFAR10(root='../data', train=False, download=True, transform=transform)
+
 if shuffle_labeling: random.shuffle(train_dataset.targets)
+classes = train_dataset.classes
 
 if use_subset:
     train_dataset = torch.utils.data.Subset(train_dataset, torch.arange(0, 100))
@@ -22,23 +29,34 @@ if use_subset:
 
 print(f'classes: {classes}\nnumber of instances:\n\ttrain: {len(train_dataset)}\n\tval: {len(val_dataset)}')
 
+
 """Creating dataloaders:"""
 batch_size = 32
 train_dl = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 val_dl = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size)
 
+
 """Defining the CNN:"""
+if use_MNIST:
+    IN_CHANNELS = 1
+    # 192 activity maps and 28x28 img devided by 2 two times, makes 7x7
+    N_FLATTEN = 192 * 7 * 7 #
+else:
+    IN_CHANNELS = 3
+    # 192 activity maps and 32x32 img devided by 2 two times, makes 8x8
+    N_FLATTEN = 192 * 8 * 8
+
 net = nn.Sequential(
-    nn.Conv2d(in_channels=3, out_channels=48, kernel_size=(3, 3), padding=(1, 1)), # -> 48 activity maps with 32x32 image
+    nn.Conv2d(in_channels=IN_CHANNELS, out_channels=48, kernel_size=(3, 3), padding=(1, 1)),
     nn.ReLU(),
-    nn.Conv2d(in_channels=48, out_channels=96, kernel_size=(3, 3), padding=(1, 1)), # -> 96 activity maps with 32x32 image
+    nn.Conv2d(in_channels=48, out_channels=96, kernel_size=(3, 3), padding=(1, 1)),
     nn.ReLU(),
-    nn.MaxPool2d(2, 2), # -> 96 activity maps with 16x16 image
-    nn.Conv2d(in_channels=96, out_channels=192, kernel_size=(3, 3), padding=(1, 1)), # -> 192 activity maps with 16x16 image
+    nn.MaxPool2d(2, 2),
+    nn.Conv2d(in_channels=96, out_channels=192, kernel_size=(3, 3), padding=(1, 1)),
     nn.ReLU(),
-    nn.MaxPool2d(2, 2), # -> 192 activity maps with 8x8 image
-    nn.Flatten(), # -> vector with size 192*8*8
-    nn.Linear(192 * 8 * 8, 64),
+    nn.MaxPool2d(2, 2),
+    nn.Flatten(),
+    nn.Linear(N_FLATTEN, 64),
     nn.ReLU(),
     nn.Linear(64, 10)
 )
@@ -46,6 +64,7 @@ net = nn.Sequential(
 # test the model on a single batch
 # image_batch, target_batch = next(iter(train_dl))
 # print(net(image_batch).shape)
+
 
 """Defining loss function and optimizer:"""
 loss_func = nn.CrossEntropyLoss()
