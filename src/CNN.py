@@ -38,13 +38,15 @@ val_dl = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size)
 
 """Defining the CNN:"""
 if use_MNIST:
+    # MNIST images are grayscale. Therefore just one in channel
     IN_CHANNELS = 1
     # 192 activity maps and 28x28 img devided by 2 two times, makes 7x7
-    N_FLATTEN = 192 * 7 * 7 #
+    N_FLATTENED = 192 * 7 * 7
 else:
+    # CIFAR images are RGB. Therefore three channels
     IN_CHANNELS = 3
     # 192 activity maps and 32x32 img devided by 2 two times, makes 8x8
-    N_FLATTEN = 192 * 8 * 8
+    N_FLATTENED = 192 * 8 * 8
 
 net = nn.Sequential(
     nn.Conv2d(in_channels=IN_CHANNELS, out_channels=48, kernel_size=(3, 3), padding=(1, 1)),
@@ -56,7 +58,7 @@ net = nn.Sequential(
     nn.ReLU(),
     nn.MaxPool2d(2, 2),
     nn.Flatten(),
-    nn.Linear(N_FLATTEN, 64),
+    nn.Linear(N_FLATTENED, 64),
     nn.ReLU(),
     nn.Linear(64, 10)
 )
