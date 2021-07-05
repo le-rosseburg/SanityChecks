@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{cleveref}
 \title{Sanity Checks for Saliency Maps}
 \author{Alexander Haenel, Florian Kneifel, Lennart Rosseburg}
 \date{July 2021}
@@ -19,70 +20,91 @@ The first instantiation is the \textit{model parameter randomization test}. Thro
 The second test, \textit{the data randomization test}, compares two different results of a saliency method. Both on the same model and dataset, but one time the datasets labels are randomly permuted. This is done in order to test the sensitivity of the method to the relationship between instances and labels. So again, significant different outputs should be expected. Elsewise the saliency method is insensitive to relationships between instances and labels from the original data and thereby cannot explain mechanisms that depend on that. (Adebayo et al. 2018) \par
 
 \section{Re-implement a sanity check using PyTorch (and Captum)}
-For this and the following badges - unless otherwise stated - please refer to the \textit{src} and \textit{results} folder.\\
+For this and the following badges please refer to the \textit{src} and \textit{results} folder or to the notebook "SaliencyMapsCNN.ipynb".\\
 
-We decided to re-implement the \textit{data randomization test}, or sanity check, from the paper. In this re-implementation we are reusing an CNN from one of our previous Exercises. The CNN architecture looks as follows: input $\to$ conv (3x3, 48) $\to$ ReLu $\to$ conv (3x3, 96) $\to$ ReLu $\to$ max-pool (2x2) $\to$ conv (3x3, 192) $\to$ ReLu $\to$ max-pool (2x2) $\to$ fully connected (64 units) $\to$ ReLu $\to$ fully connected (10 units). We train the model with the stochastic gradient descent (SGD) optimizer for 5 iterations while using an momentum of 0.9. \\
+We decided to re-implement the \textit{data randomization test}, or sanity check, from the paper. In this re-implementation we are reusing an CNN from one of our previous Exercises. The CNN architecture looks as follows: input $\to$ conv (3x3, 48) $\to$ ReLu $\to$ conv (3x3, 96) $\to$ ReLu $\to$ max-pool (2x2) $\to$ conv (3x3, 192) $\to$ ReLu $\to$ max-pool (2x2) $\to$ fully connected (64 units) $\to$ ReLu $\to$ fully connected (10 units). We train the model with the stochastic gradient descent (SGD) optimizer for 5 iterations while using an momentum of 0.9 on the CIFAR10 dataset. With the descried setup we achieved an average accuracy of 75\%.\\
 
-Below you can see our results:
-\begin{figure}[h!]
-\centering
-\includegraphics[width=\textwidth]{DL_normal.png}
-\caption{Data randomization test on MNIST dataset}
-\label{fig:mnist_normal}
-\end{figure}
+\cref{fig:ig_normal,fig:ig_random_labels} shows our results obtained with the integrated gradients salicy method on one of the CIFAR10 images. It can be observed, that the saliency map trained with randomized labels differs strongly from the one trained correctly.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=\textwidth]{DL_random_labels.png}
-\caption{Data randomization test on MNIST dataset with randomized labels}
-\label{fig:mnist_random_labels}
-\end{figure}
-
-\section{Run experiments on a different image classification dataset}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=\textwidth]{DL_normal.png}
-\caption{DeepLift}
-\label{fig:dl_normal}
-\end{figure}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=\textwidth]{DL_random_labels.png}
-\caption{DeepLift with randomized labels}
-\label{fig:dl_random_labels}
-\end{figure}
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=\textwidth]{IG_normal.png}
+\includegraphics[width=\textwidth]{results/IG_normal.png}
 \caption{Integrated Gradients}
 \label{fig:ig_normal}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=\textwidth]{IG_random_labels.png}
+\includegraphics[width=\textwidth]{results/IG_random_labels.png}
 \caption{Integrated Gradients with randomized labels}
 \label{fig:ig_random_labels}
 \end{figure}
 
+\clearpage
+
+
+
 \section{Experiment with different saliency methods}
+Additionally to the integrated gradients saliency methods we also implemented DeepLift and an occlusion-based saliency method. From the figures below you can see that the saliency map generated from DeepLift is very simular to the one from integrated gradients, which also applies to the model trained on randomized labels. On the over hand the occlusion-based saliency map even on the correctly trained model looks a bit random and therefore there is no big difference to the model trained with randomized labels. The reason may be, that the model is not trained well enough with an accuracy of 75\%.\\
+
+\cref{fig:dl_normal,fig:DL_random_labels,fig:occ_normal,fig:occ_random_labels} show our results obtained with the named salicy methods on one of the CIFAR10 images.
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=\textwidth]{OCC_normal.png}
+\includegraphics[width=\textwidth]{results/DL_normal.png}
+\caption{DeepLift}
+\label{fig:dl_normal}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\textwidth]{results/DL_random_labels.png}
+\caption{DeepLift with randomized labels}
+\label{fig:DL_random_labels}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\textwidth]{results/OCC_normal.png}
 \caption{Occlusion-based saliency method}
 \label{fig:occ_normal}
 \end{figure}
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=\textwidth]{OCC_random_labels.png}
+\includegraphics[width=\textwidth]{results/OCC_random_labels.png}
 \caption{Occlusion-based saliency method with randomized labels}
 \label{fig:occ_random_labels}
 \end{figure}
+
+\clearpage
+
+
+
+\section{Run experiments on a different image classification dataset}
+Instead of using the CIFAR10 dataset, we also tested the methods on the MNIST dataset. Since both datasets are structured equally, it was pretty easy to replace the dataset. Only two small adjustments where necessary. The input channels changed from three RGB channels for the CIFAR10 dataset to one input channel because of the gray-scale images on the MNIST dataset. Furthermore the number of neurons on the flattened linear layer changed, because of the different image sizes on CIFAR10 with 32x32 and on MNSIT with 28x28. 
+
+Altogether we achieved an accuracy of 99\% with the described model. Somehow the captum module decided to show gray-scale images as purplish images but this shouldn't bother that much. \\
+
+\cref{fig:MNIST_IG_normal,fig:MNIST_IG_random_labels} show our results obtained on one of the MNIST images with the integrated gradient saliency method. The saliency map is only visible where the number is actually written, because everywhere else the image is black (in the figures below purple) and therefore the input on these parts zero.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\textwidth]{results/MNIST_IG_normal.png}
+\caption{Integrated Gradients on an MNIST image}
+\label{fig:MNIST_IG_normal}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\textwidth]{results/MNIST_IG_random_labels.png}
+\caption{Integrated Gradients with randomized labels on an MNIST image}
+\label{fig:MNIST_IG_random_labels}
+\end{figure}
+
+\clearpage
+
+
 
 \section{Run experiments on non-image data}
 For this badge please refer to the notebook "captum\textunderscore on\textunderscore timeseries.ipynb" 
@@ -101,14 +123,14 @@ For the first experiment we use a relatively simple linear model with the follow
 Considering the simplicity of the model, we get pretty accurate predictions:
 \begin{figure}[h!]
 \centering
-\includegraphics[scale=0.6]{linear_model_prediction.png}
+\includegraphics[scale=0.6]{results/linear_model_prediction.png}
 \caption{linear model performance}
 \label{fig:lin_model_perf}
 \end{figure} \\
 First we can look at which input feature on average has the most importance for the prediction:
 \begin{figure}[ht!]
 \centering
-\includegraphics[scale=0.6]{linear_model_avg_feature_importance.png}
+\includegraphics[scale=0.6]{results/linear_model_avg_feature_importance.png}
 \caption{average feature importance}
 \label{fig:lin_model_afi}
 \end{figure} \\
@@ -119,14 +141,14 @@ There seems to be a pretty strong focus from the network towards the input at in
      \centering
      \begin{subfigure}[b]{0.2\textwidth}
          \centering
-         \includegraphics[scale=0.4]{linear_model_avg_neuron_importance.png}
+         \includegraphics[scale=0.4]{results/linear_model_avg_neuron_importance.png}
          \caption{neuron importance}
          \label{fig:lin_model_ani}
      \end{subfigure}
      \hspace*{\fill}
      \begin{subfigure}[b]{0.4\textwidth}
          \centering
-         \includegraphics[scale=0.4]{linear_model_avg_feature_per_neuron_importance.png}
+         \includegraphics[scale=0.4]{results/linear_model_avg_feature_per_neuron_importance.png}
          \caption{average feature importance per neuron}
          \label{fig:lin_model_anfi}
      \end{subfigure}
