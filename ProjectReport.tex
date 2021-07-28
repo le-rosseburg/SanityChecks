@@ -24,7 +24,7 @@ For this and the following badges please refer to the \textit{src} and \textit{r
 
 We decided to re-implement the \textit{data randomization test}, or sanity check, from the paper. In this re-implementation we are reusing an CNN from one of our previous Exercises. The CNN architecture looks as follows: input $\to$ conv (3x3, 48) $\to$ ReLu $\to$ conv (3x3, 96) $\to$ ReLu $\to$ max-pool (2x2) $\to$ conv (3x3, 192) $\to$ ReLu $\to$ max-pool (2x2) $\to$ fully connected (64 units) $\to$ ReLu $\to$ fully connected (10 units). We train the model with the stochastic gradient descent (SGD) optimizer for 5 iterations while using an momentum of 0.9 on the CIFAR10 dataset. With the descried setup we achieved an average accuracy of 75\%.\\
 
-\cref{fig:ig_normal,fig:ig_random_labels} shows our results obtained with the integrated gradients salicy method on one of the CIFAR10 images. It can be observed, that the saliency map trained with randomized labels differs strongly from the one trained correctly.
+\cref{fig:ig_normal,fig:ig_random_labels} shows our results obtained with the integrated gradients saliency method on one of the CIFAR10 images. It can be observed, that the saliency map trained with randomized labels differs strongly from the one trained correctly.
 
 \begin{figure}[h!]
 \centering
@@ -45,7 +45,7 @@ We decided to re-implement the \textit{data randomization test}, or sanity check
 
 
 \section{Experiment with different saliency methods}
-Additionally to the integrated gradients saliency methods we also implemented DeepLift and an occlusion-based saliency method. From the figures below you can see that the saliency map generated from DeepLift is very simular to the one from integrated gradients, which also applies to the model trained on randomized labels. On the over hand the occlusion-based saliency map even on the correctly trained model looks a bit random and therefore there is no big difference to the model trained with randomized labels. The reason may be, that the model is not trained well enough with an accuracy of 75\%.\\
+Additionally to the integrated gradients saliency methods we also implemented DeepLift and an occlusion-based saliency method. From the figures below you can see that the saliency map generated from DeepLift is very simular to the one from integrated gradients, which also applies to the model trained on randomized labels. On the other hand the occlusion-based saliency map even on the correctly trained model looks a bit random and therefore there is no big difference to the model trained with randomized labels. The reason may be, that the model is not trained well enough with an accuracy of 75\%.\\
 
 \cref{fig:dl_normal,fig:DL_random_labels,fig:occ_normal,fig:occ_random_labels} show our results obtained with the named salicy methods on one of the CIFAR10 images.
 
