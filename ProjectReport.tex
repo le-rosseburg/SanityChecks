@@ -22,7 +22,7 @@ The second test, \textit{the data randomization test}, compares two different re
 \section{Re-implement a sanity check using PyTorch (and Captum)}
 For this and the following badges please refer to the \textit{src} and \textit{results} folder or to the notebook "SaliencyMapsCNN.ipynb".\\
 
-We decided to re-implement the \textit{data randomization test}, or sanity check, from the paper. In this re-implementation we are reusing an CNN from one of our previous Exercises. The CNN architecture looks as follows: input $\to$ conv (3x3, 48) $\to$ ReLu $\to$ conv (3x3, 96) $\to$ ReLu $\to$ max-pool (2x2) $\to$ conv (3x3, 192) $\to$ ReLu $\to$ max-pool (2x2) $\to$ fully connected (64 units) $\to$ ReLu $\to$ fully connected (10 units). We train the model with the stochastic gradient descent (SGD) optimizer for 5 iterations while using an momentum of 0.9 on the CIFAR10 dataset. With the descried setup we achieved an average accuracy of 75\%.\\
+We decided to re-implement the \textit{data randomization test}, or sanity check, from the paper. In this re-implementation we are reusing a CNN from one of our previous Exercises. The CNN architecture looks as follows: input $\to$ conv (3x3, 48) $\to$ ReLu $\to$ conv (3x3, 96) $\to$ ReLu $\to$ max-pool (2x2) $\to$ conv (3x3, 192) $\to$ ReLu $\to$ max-pool (2x2) $\to$ fully connected (64 units) $\to$ ReLu $\to$ fully connected (10 units). We train the model with the stochastic gradient descent (SGD) optimizer for 5 iterations while using an momentum of 0.9 on the CIFAR10 dataset. With the descried setup we achieved an average accuracy of 75\%.\\
 
 \cref{fig:ig_normal,fig:ig_random_labels} shows our results obtained with the integrated gradients saliency method on one of the CIFAR10 images. It can be observed, that the saliency map trained with randomized labels differs strongly from the one trained correctly.
 
@@ -158,10 +158,15 @@ There seems to be a pretty strong focus from the network towards the input at in
 \end{figure}
 
 \subsubsection{Pattern recognition}
+The result-pictures for this section are not added to the report, because they took up too much space. You can find them in the second half of the notebook captum\textunderscore on\textunderscore timeseries.ipynb
+
 Because of the way the data is organized, we can use a step size of 12 to get the same month for consecutive years. At first sight, we might assume that there is a certain regularity in the way the inputs are interpreted. But if we use a random model to repeat the same experiment, we see similar patterns emerging. (however because the attributions are way smaller a factor 10 is added to the visualization) In conclusion, we can not really get any insight in the pattern recognition performed by the neural network from this experiment.
 
-For the last experiment we use a CNN to better resemble an architecture, that one would also find for image tasks. Just comparing the different methods provided by Captum shows quite different results. Especially looking at the input at index 9 shows a strong positive signal from the method "saliency" but is negative for "integrated gradients" and "deep lift".
+For the last experiment we use a CNN to better resemble an architecture, that one would also find for image tasks. Just comparing the different methods provided by Captum shows quite different results\footnote{last cell of the notebook}. Especially looking at the input at index 9 shows a strong positive signal from the method "saliency" but is negative for "integrated gradients" and "deep lift".
 
-All in all it is interesting to see which neuron behaves which way, and how the input features are correlated to the output. However interpreting the workings of the neural net from this information is not possible. For this timeseries-task it is even harder, because even with a lot of training we as humans can not simply look at a short timeseries plot and predict the next value. At picture classification humans are naturally gifted and can generally perform well.
+\section{Conclusion}
+All in all it is interesting to see which neuron behaves which way, and how the input features are correlated to the output. However interpreting the workings of the neural net from this information is not possible. For the timeseries-task it is even harder, because even with a lot of training we as humans can not simply look at a short timeseries plot and predict the next value. At picture classification humans are naturally gifted and can generally perform well. But even there we sadly can not gain much insight in how the neural net "sees" pictures. 
+
+The proposed sanity checks (Adebayo et al. 2018) of randomizing either the model parameters or the training labels are very helpful to verify, that a saliency method is indeed representing the neural network. For visual tasks this is quite important, because in many cases a basic edge-detector might fool us into thinking, that our network actually extracted all the meaningful structures.
 
 \end{document}
